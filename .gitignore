@@ -1,0 +1,9 @@
+vendor
+composer.lock
+.idea
+*.log
+.DS_Store
+.phpunit*
+coverage-report.log
+Coverage
+Metrics

@@ -1,0 +1,91 @@
+{
+    "name": "nimayneb/costar",
+    "license": "GPL-3.0-or-later",
+    "type": "library",
+    "description": "Costar - Generator for PHP Coding Standards in PMD formats (PHPCS, PHPMD)",
+    "keywords": [
+        "code",
+        "codes",
+        "codesniffer",
+        "coding",
+        "config",
+        "configuration",
+        "editor",
+        "generator",
+        "phpcs",
+        "phpmd",
+        "rule",
+        "ruler",
+        "rules",
+        "sniff",
+        "sniffer",
+        "sniffs",
+        "standard",
+        "standards",
+        "style",
+        "styleguide",
+        "styles",
+        "style-guide",
+        "styling"
+    ],
+    "authors": [
+        {
+            "name": "Jan Runte",
+            "email": "github-1601@nimayneb.de"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "vendor/squizlabs/php_codesniffer/src"
+        ],
+        "psr-4": {
+            "JayBeeR\\Costar\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JayBeeR\\Costar\\Tests\\": "Tests/"
+        }
+    },
+    "require": {
+        "php": "^7.4",
+        "ext-simplexml": "*",
+        "symfony/console": "^5.0",
+        "squizlabs/php_codesniffer": "^3.5",
+        "phpmd/phpmd": "^2.8",
+        "mikecao/flight": "^1.3",
+        "haydenpierce/class-finder": "^0.4.2",
+        "composer/composer": "^1.10"
+    },
+    "require-dev": {
+        "nimayneb/phpqg": "1.0.0"
+    },
+    "config": {
+        "process-timeout": 0
+    },
+    "bin": [
+        "bin/costar"
+    ],
+    "scripts": {
+        "serve": "@php -S 127.0.0.1:8080 router.inc"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "nimayneb/phpqg",
+                "version": "1.0.0",
+                "source": {
+                    "url": "https://gist.github.com/nimayneb/142af065c66e2661054d5a43bd96ebed",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "autoload": {
+                    "classmap": [
+                        "."
+                    ]
+                }
+            }
+        }
+    ]
+}
