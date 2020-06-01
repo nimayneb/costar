@@ -48,6 +48,8 @@
                         <q-toolbar-title>
                             Costar - Coding Standard Ruler
                         </q-toolbar-title>
+
+                        <q-btn flat @click="download" dense>Download</q-btn>
                     </q-toolbar>
 
                 </q-header>
@@ -59,23 +61,14 @@
                                 :data="data"
                                 :columns="columns"
                                 :loading="loading"
+                                :rows-per-page-options="[50, 100]"
+                                :pagination.sync="pagination"
                                 @request="request"
                                 flat
                                 bordered
                         >
                             <template slot="body" slot-scope="props">
                                 <q-tr :props="props">
-                                    <q-td auto-width>
-                                        <div v-if="props.row.expandAttributes !== null">
-                                            <q-checkbox color="primary"
-                                                        v-model="props.row.expandAttributes"
-                                                        checked-icon="remove"
-                                                        unchecked-icon="add"
-                                                        class="q-mr-md"
-                                            />
-                                            <i>{{ props.row.attributes.length }}</i>
-                                        </div>
-                                    </q-td>
                                     <q-td key="category" :props="props">{{ props.row.category }}</q-td>
                                     <q-td key="rule" :props="props">{{ props.row.rule }}</q-td>
                                     <q-td key="enable" :props="props">
@@ -92,14 +85,36 @@
                                         />
                                     </q-td>
                                     <q-td auto-width>
-                                        <div v-if="props.row.expandCodeComparisons !== null">
+                                        <div v-if="props.row.expandAttributes !== null">
                                             <q-checkbox color="primary"
-                                                        v-model="props.row.expandCodeComparisons"
+                                                        v-model="props.row.expandAttributes"
                                                         checked-icon="remove"
                                                         unchecked-icon="add"
                                                         class="q-mr-md"
                                             />
-                                            <i>{{ props.row.codeComparisons.length }}</i>
+                                            <i>{{ props.row.attributes.length }}</i>
+                                        </div>
+                                    </q-td>
+                                    <q-td auto-width>
+                                        <div v-if="props.row.expandExplanations !== null">
+                                            <q-checkbox color="primary"
+                                                        v-model="props.row.expandExplanations"
+                                                        checked-icon="remove"
+                                                        unchecked-icon="add"
+                                                        class="q-mr-md"
+                                            />
+                                            <i>{{ props.row.explanations.length }}</i>
+                                        </div>
+                                    </q-td>
+                                    <q-td auto-width>
+                                        <div v-if="props.row.expandFixableErrors !== null">
+                                            <q-checkbox color="primary"
+                                                        v-model="props.row.expandFixableErrors"
+                                                        checked-icon="remove"
+                                                        unchecked-icon="add"
+                                                        class="q-mr-md"
+                                            />
+                                            <i>{{ props.row.fixableErrors.length }}</i>
                                         </div>
                                     </q-td>
                                     <q-td key="description" :props="props"><i>{{ props.row.description }}</i></q-td>
@@ -159,26 +174,39 @@
                                     </q-td>
                                 </q-tr>
 
-                                <q-tr v-show="props.row.expandCodeComparisons" :props="props">
+                                <q-tr v-show="props.row.expandFixableErrors" :props="props">
                                     <q-td colspan="100%">
-                                        <div v-for="codeComparison in props.row.codeComparisons">
-                                            <q-splitter v-model="codeComparison" :limits="[50,50]">
+                                        <div v-for="fixableErrors in props.row.fixableErrors">
+                                            <q-toggle
+                                                    v-model="fixableErrors.enable"
+                                                    color="green"
+                                            />
+
+                                            {{ fixableErrors.name }}
+                                        </div>
+                                    </q-td>
+                                </q-tr>
+
+                                <q-tr v-show="props.row.expandExplanations" :props="props">
+                                    <q-td colspan="100%">
+                                        <div v-for="explanation in props.row.explanations">
+                                            <q-splitter v-model="explanation" :limits="[50,50]">
                                                 <template v-slot:before>
                                                     <div class="q-pa-md">
-                                                        <div class="text-h6 q-mb-md">{{ codeComparison.left.label }}
+                                                        <div class="text-h6 q-mb-md">{{ explanation.left.label }}
                                                         </div>
                                                         <div class="code">
-                                                            <span v-html="codeComparison.left.code"></span>
+                                                            <span v-html="explanation.left.code"></span>
                                                         </div>
                                                     </div>
                                                 </template>
 
                                                 <template v-slot:after>
                                                     <div class="q-pa-md">
-                                                        <div class="text-h6 q-mb-md">{{ codeComparison.right.label }}
+                                                        <div class="text-h6 q-mb-md">{{ explanation.right.label }}
                                                         </div>
                                                         <div class="code">
-                                                            <span v-html="codeComparison.right.code"></span>
+                                                            <span v-html="explanation.right.code"></span>
                                                         </div>
                                                     </div>
                                                 </template>
@@ -215,14 +243,9 @@
                     return {
                         pagination: {
                             page: 1,
-                            rowsPerPage: 0
+                            rowsPerPage: 50
                         },
                         columns: [
-                            {
-                                name: 'expandAttributes',
-                                label: 'Attributes',
-                                align: 'left',
-                            },
                             {
                                 name: 'category',
                                 label: 'Category',
@@ -252,9 +275,25 @@
                                 sortable: true
                             },
                             {
-                                name: 'expandCodeComparisons',
-                                label: 'Comparisons',
+                                name: 'attributes',
+                                label: 'Attributes',
+                                field: 'attributes',
                                 align: 'left',
+                                sortable: true
+                            },
+                            {
+                                name: 'explanations',
+                                label: 'Explanations',
+                                field: 'explanations',
+                                align: 'left',
+                                sortable: true
+                            },
+                            {
+                                name: 'fixableErrors',
+                                label: 'Fixable Errors',
+                                field: 'fixableErrors',
+                                align: 'left',
+                                sortable: true
                             },
                             {
                                 name: 'description',
@@ -298,10 +337,25 @@
                     this.request()
                 },
                 methods: {
+                    download() {
+                        axios.post(
+                            'http://127.0.0.1:8080/phpcs-export',
+                            {
+                                data: this.data,
+                                responseType: 'arraybuffer'
+                            }
+                        ).then(response => {
+                            let blob = new Blob([response.data], { type: 'application/xml' })
+                            let url = window.URL.createObjectURL(blob)
+
+                            window.open(url)
+                        })
+                        .catch(error => {})
+                    },
                     request() {
                         this.loading = true
 
-                        axios.get('http://127.0.0.1:8080/phpcs')
+                        axios.get('http://127.0.0.1:8080/phpcs-rules')
                                 .then(response => {
                                     this.data = response.data
                                     this.loading = false

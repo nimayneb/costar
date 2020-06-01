@@ -49,21 +49,21 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
          */
         public function setStandardDescription(stdClass $rule)
         {
-            $comparisons = $this->xml->code_comparison;
+            $explanations = $this->xml->code_comparison;
 
-            foreach ($comparisons as $comparison) {
-                $rule->codeComparisons[] = [
+            foreach ($explanations as $explanation) {
+                $rule->explanations[] = [
                     'left' => $left = new stdClass,
                     'right' => $right = new stdClass,
                 ];
 
-                $left->code = (string)$comparison->code[0];
-                $left->label = (string)$comparison->code[0]['title'];
-                $right->code = (string)$comparison->code[1];
-                $right->label = (string)$comparison->code[1]['title'];
+                $left->code = (string)$explanation->code[0];
+                $left->label = (string)$explanation->code[0]['title'];
+                $right->code = (string)$explanation->code[1];
+                $right->label = (string)$explanation->code[1]['title'];
             }
 
-            $rule->expandCodeComparisons = count($rule->codeComparisons)
+            $rule->expandExplanations = count($rule->explanations)
                 ? false
                 : null;
         }

@@ -69,7 +69,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
                     $documentation->setRuleDescription($sniff->getRule());
                 }
 
-                $this->rules[] = $sniff->getRule();
+                $this->rules[$sniff->getFullName()] = $sniff->getRule();
             }
         }
 
@@ -79,6 +79,26 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
         public function toArray(): array
         {
             return $this->rules;
+        }
+
+        /**
+         * @return array
+         */
+        public function toJson(): array
+        {
+            $rules = array_values($this->rules);
+
+            foreach ($rules as $rule) {
+                $attributes = [];
+
+                foreach ($rule->attributes as $attribute) {
+                    $attributes[] = $attribute;
+                }
+
+                $rule->attributes = $attributes;
+            }
+
+            return $rules;
         }
     }
 } 

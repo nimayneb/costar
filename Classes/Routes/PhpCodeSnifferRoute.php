@@ -8,11 +8,12 @@
 namespace JayBeeR\Costar\Routes
 {
 
-    use Exception;
     use Flight;
+    use JayBeeR\Costar\Rules\CodeSniffer\Export;
     use JayBeeR\Costar\Rules\CodeSniffer\Rules;
     use PHP_CodeSniffer\Config;
     use ReflectionClass;
+    use ReflectionException;
 
     class PhpCodeSnifferRoute
     {
@@ -22,7 +23,7 @@ namespace JayBeeR\Costar\Routes
          * API: http://127.0.0.1:8080/phpcs
          *  {
          *      expandAttributes: false,
-         *      expandCodeComparisons: false,
+         *      expandExplanations: false,
          *      category: 'Generic',
          *      rule: 'Classes.DuplicateClassName',
          *      enable: true,
@@ -37,19 +38,44 @@ namespace JayBeeR\Costar\Routes
          *      description: 'Class and Interface names should be unique in a project.  They should never be duplicated.',
          *  }
          *
-         * @throws Exception
+         * @throws ReflectionException
          */
         public static function rules(): void
+        {
+            $rules = static::getRules();
+
+            header('Content-Type: application/json');
+            header('Access-Control-Allow-Origin: *');
+
+            Flight::json($rules->toJson());
+        }
+
+        /**
+         * @throws ReflectionException
+         */
+        protected static function getRules(): Rules
         {
             $standards = static::getStandardNamespaces();
 
             $rules = new Rules(static::$standardNamespace);
             $rules->analyseRules($standards);
 
-            header('Content-Type: application/json');
-            header('Access-Control-Allow-Origin: *');
+            return $rules;
+        }
 
-            Flight::json($rules->toArray());
+        /**
+         * @throws ReflectionException
+         */
+        public static function export(): void
+        {
+            $data = json_decode(Flight::request()->getBody(), true);
+
+            $export = new Export(static::getRules());
+            $export->process($data);
+
+            header('Content-Type: application/xml; charset=utf-8');
+
+            echo $export->asXml();
         }
 
         /**

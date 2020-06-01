@@ -22,6 +22,21 @@ use Symfony\Component\Console\Output\NullOutput;
     $application->setAutoExit(true);
 
     try {
+        echo "\n";
+        echo <<<FIGLET
+     ______           __            
+    / ____/___  _____/ /_____ ______
+   / /   / __ \/ ___/ __/ __ `/ ___/
+  / /___/ /_/ (__  ) /_/ /_/ / /    
+  \____/\____/____/\__/\__,_/_/   
+    
+    Coding Standard Generator
+   
+      http://127.0.0.1:8080 
+
+                
+FIGLET;
+
         $application->run(new ArrayInput(['command' => 'serve']), new NullOutput());
     } catch (Exception $e) {
         echo $e->getMessage();

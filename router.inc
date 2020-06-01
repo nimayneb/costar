@@ -12,7 +12,9 @@ require_once __DIR__ . '/vendor/autoload.php';
         echo file_get_contents(__DIR__ . '/Resources/Templates/Rules.html');
     });
 
-    Flight::route('/phpcs', [\JayBeeR\Costar\Routes\PhpCodeSnifferRoute::class, 'rules']);
-    Flight::route('/phpmd', [\JayBeeR\Costar\Routes\PhpMassDetectorRoute::class, 'rules']);
+    Flight::route('POST /phpcs-export', [\JayBeeR\Costar\Routes\PhpCodeSnifferRoute::class, 'export']);
+    Flight::route('GET /phpcs-rules', [\JayBeeR\Costar\Routes\PhpCodeSnifferRoute::class, 'rules']);
+    Flight::route('GET /phpmd-rules', [\JayBeeR\Costar\Routes\PhpMassDetectorRoute::class, 'rules']);
+
     Flight::start();
 }

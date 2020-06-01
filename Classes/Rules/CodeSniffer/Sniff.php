@@ -8,6 +8,7 @@
 namespace JayBeeR\Costar\Rules\CodeSniffer
 {
 
+    use Generator;
     use ReflectionClass;
     use ReflectionException;
     use ReflectionProperty;
@@ -50,10 +51,19 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
             $this->rule->enable = false;
             $this->rule->severity = 'error';
             $this->rule->description = '';
-            $this->rule->codeComparisons = [];
-            $this->rule->expandCodeComparisons = null;
+            $this->rule->explanations = [];
+            $this->rule->expandExplanations = null;
 
             $this->setRuleAttributes();
+            $this->setRuleFixes();
+        }
+
+        /**
+         * @return string
+         */
+        public function getFullName(): string
+        {
+            return "{$this->rule->category}.{$this->rule->rule}";
         }
 
         /**
@@ -62,6 +72,64 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
         public function getRule(): stdClass
         {
             return $this->rule;
+        }
+
+        /**
+         *
+         */
+        protected function setRuleFixes(): void
+        {
+            $this->rule->fixableErrors = [];
+
+            $tokens = token_get_all(file_get_contents($this->reflectedSniff->getFileName()));
+
+            foreach ($this->foundFixableErrors($tokens) as $fixableError) {
+                $this->rule->fixableErrors[] = $error = new stdClass;
+                $error->name = $fixableError;
+                $error->enable = true;
+
+            }
+
+            $this->rule->expandFixableErrors = count($this->rule->fixableErrors) ? false : null;
+        }
+
+        /**
+         * @param $tokens
+         *
+         * @return Generator
+         */
+        protected function foundFixableErrors($tokens): Generator
+        {
+            $path = [
+                0 => [T_OBJECT_OPERATOR, '->'],
+                1 => [T_STRING, 'addFixableError'],
+                2 => ['string', '('],
+                3 => [T_VARIABLE, null],
+                4 => ['string', ','],
+                5 => [T_VARIABLE, null],
+                6 => ['string', ','],
+                7 => [T_CONSTANT_ENCAPSED_STRING, true],
+            ];
+
+            $pathIndex = 0;
+
+            foreach ($tokens as $token) {
+                if (is_array($token) && $token[0] === T_WHITESPACE) {
+                    continue;
+                } elseif (($path[$pathIndex][0] === $token[0]) && ($path[$pathIndex][1] === $token[1])) {
+                    $pathIndex++;
+                } elseif (($path[$pathIndex][0] === 'string') && ($path[$pathIndex][1] === $token)) {
+                    $pathIndex++;
+                } elseif (($path[$pathIndex][0] === $token[0]) && ($path[$pathIndex][1] === true)) {
+                    $pathIndex = 0;
+
+                    yield substr($token[1], 1, -1);
+                } elseif (($path[$pathIndex][0] === $token[0]) && ($path[$pathIndex][1] === null)) {
+                    $pathIndex++;
+                } else {
+                    $pathIndex = 0;
+                }
+            }
         }
 
         /**
@@ -81,7 +149,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
                     continue;
                 }
 
-                $this->rule->attributes[] = $attribute = new stdClass;
+                $this->rule->attributes[$propertyName] = $attribute = new stdClass;
                 $attribute->name = $propertyName;
                 $attribute->value = $property->isDefault()
                     ? $property->getValue($this->reflectedSniff->newInstanceWithoutConstructor())
@@ -123,7 +191,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
             $tokens = token_get_all(file_get_contents($fileName));
 
             foreach ($tokens as $token) {
-                if ($token[0] == T_DOC_COMMENT) {
+                if ($token[0] === T_DOC_COMMENT) {
                     return $token[1];
                 }
             }
