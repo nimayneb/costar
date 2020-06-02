@@ -55,7 +55,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
             $this->rule->expandExplanations = null;
 
             $this->setRuleAttributes();
-            $this->setRuleFixes();
+            $this->setRuleFixableErrors();
         }
 
         /**
@@ -77,7 +77,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
         /**
          *
          */
-        protected function setRuleFixes(): void
+        protected function setRuleFixableErrors(): void
         {
             $this->rule->fixableErrors = [];
 

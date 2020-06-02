@@ -84,7 +84,7 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
         /**
          * @return array
          */
-        public function toJson(): array
+        public function getApplicationArray(): array
         {
             $rules = array_values($this->rules);
 

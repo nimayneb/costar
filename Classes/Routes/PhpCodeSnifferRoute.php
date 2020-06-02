@@ -14,6 +14,7 @@ namespace JayBeeR\Costar\Routes
     use PHP_CodeSniffer\Config;
     use ReflectionClass;
     use ReflectionException;
+    use stdClass;
 
     class PhpCodeSnifferRoute
     {
@@ -22,20 +23,47 @@ namespace JayBeeR\Costar\Routes
         /**
          * API: http://127.0.0.1:8080/phpcs
          *  {
-         *      expandAttributes: false,
-         *      expandExplanations: false,
-         *      category: 'Generic',
-         *      rule: 'Classes.DuplicateClassName',
-         *      enable: true,
-         *      severity: 'error',
-         *      attributes: [
-         *          {
-         *              name: "test",
-         *              value: 123,
-         *              description: "description bla"
-         *          }
-         *      ],
-         *      description: 'Class and Interface names should be unique in a project.  They should never be duplicated.',
+         *      name: String
+         *      description: String,
+         *
+         *      rules: {
+         *          category: String
+         *          rule: String
+         *          enable: Boolean
+         *          description: String
+         *          severity: Integer
+         *
+         *          expandAttributes: Boolean
+         *          attributes: [
+         *              {
+         *                  name: String
+         *                  value: Mixed
+         *                  description: String
+         *              }
+         *          ]
+         *
+         *          expandExplanations: Boolean
+         *          explanations: [
+         *              {
+         *                  left: {
+         *                      code: String
+         *                      label: String
+         *                  }
+         *                  right: {
+         *                      code: String
+         *                      label: String
+         *                  }
+         *              }
+         *          ]
+         *
+         *          expandFixableErrors: Boolean
+         *          fixableErrors: [
+         *              {
+         *                  name: String
+         *                  enable: Boolean
+         *              }
+         *          ]
+         *      }
          *  }
          *
          * @throws ReflectionException
@@ -47,7 +75,12 @@ namespace JayBeeR\Costar\Routes
             header('Content-Type: application/json');
             header('Access-Control-Allow-Origin: *');
 
-            Flight::json($rules->toJson());
+            $pmd = new stdClass;
+            $pmd->name = 'Coding standards for PHPCS';
+            $pmd->description = 'Generated coding standard rules with Costar.';
+            $pmd->rules = $rules->getApplicationArray();
+
+            Flight::json($pmd);
         }
 
         /**

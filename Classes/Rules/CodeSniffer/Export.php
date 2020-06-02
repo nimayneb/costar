@@ -34,7 +34,8 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
             $this->ruleset = new SimpleXMLElement('<ruleset/>');
 
             $this->ruleset->addAttribute('xmlns', 'http://pmd.sf.net/ruleset/1.0.0');
-            $this->ruleset->addAttribute('name', 'Coding Standard Rules');
+            $this->ruleset->addAttribute('name', $data['data']['name']);
+            $this->ruleset->addAttribute('language', 'php');
 
             $this->ruleset->addAttribute(
                 'xsi:schemaLocation',
@@ -48,7 +49,9 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
                 'http://www.w3.org/2001/XMLSchema-instance'
             );
 
-            foreach ($data['data'] as $item) {
+            $this->ruleset->addChild('description', $data['data']['description']);
+
+            foreach ($data['data']['rules'] as $item) {
                 if ($item['enable']) {
                     $rule = $this->ruleset->addChild('rule');
                     $fullRuleName = "{$item['category']}.{$item['rule']}";
@@ -75,7 +78,11 @@ namespace JayBeeR\Costar\Rules\CodeSniffer
                                 $exclude = $rule->addChild('exclude');
                                 $exclude->addAttribute(
                                     'name',
-                                    sprintf('%s.%s', $fullRuleName, $fixableError['name'])
+                                    sprintf(
+                                        '%s.%s',
+                                        str_replace('\\', '.', $fullRuleName),
+                                        $fixableError['name']
+                                    )
                                 );
                             }
                         }
